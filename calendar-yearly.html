@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yearly Calendar</title>
+<style>
+    /* Style for calendar */
+	.month-title {
+		text-align: left;
+		font-weight: 600;
+		padding-left: 15px;
+	}
+    #calendar {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 20px auto;
+    }
+    .calendar-header {
+        margin-bottom: 10px;
+    }
+    .calendar-header button {
+		background-color: transparent;
+		color: #000;
+		border: none;
+		border-radius: 50%;
+		padding: 9px 10px;
+		cursor: pointer;
+	}
+    .calendar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    .month {
+        padding: 10px;
+    }
+    .days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+    }
+    .day {
+        padding: 0px;
+    }
+    .day span {
+	    display: inline-block;
+        padding: 6px 6px;
+		border-radius: 50%;
+    }
+    .day-name {
+		font-weight: bold;
+		margin: 10px 0;
+	}
+    .day span.selected {
+		background-color: #FD7FA9;
+		color: #fff;
+		padding: 6px 6px;
+		border-radius: 50%;
+	}
+    .other-month {
+        color: #aaa;
+    }
+</style>
+</head>
+<body>
+<div id="calendar">
+    <div class="calendar-header">
+        <button id="prevYearBtn">&lt;&lt;</button>
+        <span id="yearDisplay"></span>
+        <button id="nextYearBtn">&gt;&gt;</button>
+    </div>
+    <div class="calendar" id="calendarBody">
+        
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>	
+
+<script>
+    // Get current year
+    var currentYear = new Date().getFullYear();
+    var currentMonth = new Date().getMonth() + 1; // Month index starts from 0
+
+    // Display current year
+    document.getElementById('yearDisplay').textContent = currentYear;
+
+    // Function to generate calendar for a given year
+    function generateCalendar(year) {
+        var calendarBody = document.getElementById('calendarBody');
+        calendarBody.innerHTML = '';
+        for (var month = 0; month < 12; month++) {
+            var monthName = new Date(year, month, 1).toLocaleString('en-us', { month: 'long' });
+            var monthDiv = document.createElement('div');
+            monthDiv.classList.add('month');
+            
+            // Add month name with class "month-title"
+			var monthTitleDiv = document.createElement('div');
+			monthTitleDiv.classList.add('month-title');
+			monthTitleDiv.textContent = monthName;
+			monthDiv.appendChild(monthTitleDiv);
+
+			// Add day names row
+			var dayNamesRow = document.createElement('div');
+			dayNamesRow.classList.add('days');
+			var dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+			dayNames.forEach(function(dayName) {
+				var dayNameDiv = document.createElement('div');
+				dayNameDiv.textContent = dayName;
+				dayNameDiv.classList.add('day-name');
+				dayNamesRow.appendChild(dayNameDiv);
+			});
+			monthDiv.appendChild(dayNamesRow);
+            
+            var daysDiv = document.createElement('div');
+            daysDiv.classList.add('days');
+            monthDiv.appendChild(daysDiv);
+            calendarBody.appendChild(monthDiv);
+            
+            // Add days of the month
+            var firstDayOfMonth = new Date(year, month, 1).getDay(); // Day of the week (0 - Sunday, 1 - Monday, etc.)
+            var daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            
+			// Fill blank days with dates from the previous month
+            for (var i = firstDayOfMonth - 1; i >= 0; i--) {
+				var prevMonthDate = new Date(year, month, -i);
+				var prevMonthDay = prevMonthDate.getDate();
+				var prevMonthDaySpan = document.createElement('span');
+				prevMonthDaySpan.textContent = prevMonthDay;
+                var dayDiv = document.createElement('div');
+				dayDiv.classList.add('day', 'other-month');
+				dayDiv.appendChild(prevMonthDaySpan);
+				daysDiv.appendChild(dayDiv);
+			}
+
+			// Add days of the current month
+			for (var day = 1; day <= daysInMonth; day++) {
+				var daySpan = document.createElement('span');
+				daySpan.textContent = day;
+				if (month === currentMonth - 1 && day === new Date().getDate()) { // Highlight current day of the current month
+					daySpan.classList.add('selected');
+				}
+				var dayDiv = document.createElement('div');
+				dayDiv.classList.add('day');
+				dayDiv.appendChild(daySpan);
+				daysDiv.appendChild(dayDiv);
+			}
+
+			// Fill remaining days with dates from the next month
+			var lastDayOfMonth = new Date(year, month + 1, 0).getDay(); // Last day of the week in the month
+			var remainingDays = 7 - lastDayOfMonth - 1; // Number of remaining days after the last day of the month
+			for (var j = 1; j <= remainingDays; j++) {
+				var nextMonthDay = new Date(year, month + 1, j).getDate();
+				var nextMonthDaySpan = document.createElement('span');
+				nextMonthDaySpan.textContent = nextMonthDay;
+				var nextMonthDayDiv = document.createElement('div');
+				nextMonthDayDiv.classList.add('day', 'other-month');
+				nextMonthDayDiv.appendChild(nextMonthDaySpan);
+				daysDiv.appendChild(nextMonthDayDiv);
+			}
+			
+			
+        }
+    }
+
+    // Generate calendar for current year
+    generateCalendar(currentYear);
+
+    // Event listener for previous year button
+    document.getElementById('prevYearBtn').addEventListener('click', function() {
+        currentYear--;
+        document.getElementById('yearDisplay').textContent = currentYear;
+        generateCalendar(currentYear);
+    });
+
+    // Event listener for next year button
+    document.getElementById('nextYearBtn').addEventListener('click', function() {
+        currentYear++;
+        document.getElementById('yearDisplay').textContent = currentYear;
+        generateCalendar(currentYear);
+    });
+</script>
+</body>
+</html>

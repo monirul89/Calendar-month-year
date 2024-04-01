@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+</head>
+<body>
+
+<div id="datepicker"></div>
+
+<script>
+    $(function() {
+        $( "#datepicker" ).datepicker( {
+        minDate: new Date(),
+        dateFormat: "dd/mm/yy",
+        onSelect: function(date, picker){
+            funcCall(date);  
+        }
+        });
+    });
+
+    function funcCall(date){
+        console.log(date);
+    }
+</script>
+
+</body>
+</html>
